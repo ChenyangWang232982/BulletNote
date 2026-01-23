@@ -1,0 +1,245 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* 主容器：核心修改为横向布局，承载左表单右列表【修改：全量调整布局逻辑】 */
+.container {
+  display: flex;
+  flex-direction: row; /* 【关键】从column改为row，实现左右并排 */
+  height: calc(100vh - 120px); /* 【关键】扣除标题高度，避免整体页面滚动 */
+  width: 100vw;
+  margin: 0;
+  padding: 0 20px; /* 左右内边距，避免贴浏览器边缘 */
+  overflow: hidden;
+  gap: 20px; /* 【新增】表单和列表之间的间距 */
+}
+
+/* 标题外层容器【修改：独立抽离后，单独控制标题布局】 */
+.titleLayout {
+  width: 100%; /* 强制占满整行 */
+  padding: 20px 20px 10px; /* 上下内边距，和主容器内边距对齐 */
+}
+
+/* 标题样式【修改：匹配JSX的titlePanel类名，原CSS是title，修正后样式生效】 */
+.titlePanel {
+  text-align: left; /* 标题靠左，改center即可居中 */
+  color: #2f69a3;
+  margin: 0; /* 清除默认边距，避免多余空白 */
+  font-size: 2rem; /* 放大字号，更醒目 */
+}
+
+/* 表单外层面板【修改：固定宽度，撑满主容器高度】 */
+.rowPanel {
+  display: flex; /* 补全flex，确保子元素form撑满宽度 */
+  flex: 0 0 380px; /* 【关键】固定宽度380px，不拉伸不压缩，可自定义 */
+  height: 100%; /* 撑满主容器高度 */
+}
+
+/* 表单样式【修改：微调高度，撑满外层rowPanel】 */
+.form {
+  background: rgba(0, 149, 255, 0.4);   
+  backdrop-filter: blur(12px);           
+  -webkit-backdrop-filter: blur(12px);     
+  border: 1px solid rgba(203, 213, 225, 0.3);
+  border-radius: 12px;
+  padding: 24px;
+  margin: 0;
+  box-shadow: 1px 0 8px rgba(0,0,0,0.06);
+  width: 100%; /* 【修改】撑满rowPanel宽度 */
+  height: 100%; /* 【修改】撑满rowPanel高度 */
+  overflow-y: auto; /* 内容过多时，表单内部滚动 */
+  /* 移除原有固定宽度/高度，由rowPanel控制 */
+}
+
+.formTitle {
+  margin: 0 0 20px 0;
+  color: rgba(255,255,255)
+}
+
+.formGroup {
+  margin-bottom: 15px;
+}
+
+.label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: bold;
+  color: #ffffff;
+}
+
+.input,
+.textarea {
+  width: 100%;
+  padding: 8px;
+  border-radius: 4px;
+  border: 1px solid #ddd;
+  box-sizing: border-box;
+}
+
+.textarea {
+  resize: vertical;
+}
+
+.buttonGroup {
+  display: flex;
+  gap: 10px;
+}
+
+.submitBtn {
+  padding: 8px 16px;
+  background: #3498db;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.submitBtn:hover {
+  background: #2980b9;
+}
+
+.cancelBtn {
+  padding: 8px 16px;
+  background: #95a5a6;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.cancelBtn:hover {
+  background: #7f8c8d;
+}
+
+/* 笔记列表【修改：核心调整为自适应剩余宽度，撑满高度】 */
+.notesList {
+  flex: 0 0 50vw;
+  display: flex;
+  flex-direction: column;
+  height: 100%; /* 【修改】撑满主容器高度 */
+  border-radius: 12px;
+  background: rgb(255,255,255,0.6);
+  overflow-y: auto; /* 内容过多时，列表内部滚动 */
+  padding: 24px 28px;
+  box-sizing: border-box;
+  box-shadow: 1px 0 8px rgba(0,0,0,0.06); /* 【新增】加阴影，和表单视觉统一 */
+  /* 移除原有多余的width/flex设置，由flex:1控制宽度 */
+}
+
+.listTitle {
+  color: rgb(46, 41, 41);
+  border-bottom: 2px solid #eee;
+  padding-bottom: 10px;
+  margin-bottom: 20px;
+  flex: 0 0 auto;
+  font-size: 1.5rem;
+}
+
+.loading,
+.empty {
+  text-align: center;
+  color: #7f8c8d;
+  padding: 60px 20px;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+}
+
+.empty {
+  background: rgb(255,255,255,0.3);
+  border-radius: 8px;
+  margin: 0 8px;
+}
+
+.noteCard {
+  background: white;
+  padding: 16px 20px;
+  border-radius: 10px;
+  margin-bottom: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.07);
+  flex: 0 0 auto;
+}
+
+.noteHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 12px;
+  gap: 12px;
+}
+
+.noteTitle {
+  margin: 0;
+  color: #2c3e50;
+  font-size: 1.25rem;
+  font-weight: 600;
+  flex: 1;
+}
+
+.noteCategory {
+  background: #e74c3c;
+  color: white;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.noteContent {
+  color: #34495e;
+  line-height: 1.6;
+  margin-bottom: 16px;
+  white-space: pre-wrap;
+}
+
+.noteMeta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 1px solid #eee;
+  padding-top: 12px;
+  font-size: 0.875rem;
+}
+
+.noteTime {
+  font-size: 0.85rem;
+  color: #7f8c8d;
+}
+
+.noteBtnGroup {
+  display: flex;
+  gap: 8px;
+}
+
+.editBtn,
+.deleteBtn {
+  padding: 6px 12px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: all 0.2s;
+}
+
+.editBtn {
+  background: #2ecc71;
+  color: white;
+}
+
+.editBtn:hover {
+  background: #27ae60;
+}
+
+.deleteBtn {
+  background: #e74c3c;
+  color: white;
+}
+
+.deleteBtn:hover {
+  background: #c0392b;
+}
