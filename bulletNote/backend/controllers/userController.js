@@ -17,10 +17,11 @@ exports.registration = async (req, res) => {
         //existaing validation
         const existingUser = await User.findOne({
             where: {
-                [Op.or]: [{username}, {email}]
+                username
             }
         });
         if (existingUser) {
+            console.log("existing user");
             return res.status(400).json({
                 success: false,
                 message: 'Username or email address has been registered.'
@@ -32,6 +33,7 @@ exports.registration = async (req, res) => {
             password,
             email: email || null
         });
+        console.log("successfully creating user")
 
         //return result
         res.status(201).json({
