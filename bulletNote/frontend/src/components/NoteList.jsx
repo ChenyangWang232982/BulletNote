@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import api from '../utils/axios';
 import styles from './NoteList.module.css';
+import { useNavigate } from 'react-router-dom';
 
 const NoteList = () => {
   // State for storing note list data
@@ -15,19 +16,39 @@ const NoteList = () => {
   });
   // State for storing the id of the note being edited
   const [editingId, setEditingId] = useState(null);
+  const [formSubmitting, setFormSubmitting] = useState(false);
+  const [errorMsg, setErrorMsg] = useState('');
+  const [userInfo, setUserInfo] = useState(null);
+  const navigate = useNavigate();
+  
 
-  // Fetch all notes from the backend
-  const fetchNotes = async () => {
+  //fetch userdata
+  const fetchData = async () => {
     try {
       setLoading(true);
-      const data = await api.get('/notes');
-      setNotes(data);
+      setErrorMsg('');
+      const userRes = await api.get('/users/Info');
+      const userData = userRes?.success ? userRes.data : null;
+      setUserInfo(userData);
+      const noteRes = await api.get('/notes');
+      const noteData = noteRes?.success && Array.isArray(noteRes.data) ? noteRes.data : [];
+      setNotes(noteData);
+      console.log('user info：', userData);
+      console.log('note list：', noteData);
+
     } catch (err) {
-      console.error('Failed to fetch notes', err);
+      setNotes([]);
+      if (err.response?.status === 401) {
+        navigate('/login');
+        return;
+      }
+      const msg = err.response?.data?.message || 'Failed to load data';
+      setErrorMsg(msg);
+      console.error('Failure to load data：', err);
     } finally {
-      setLoading(false);
+      setLoading(false); 
     }
-  };
+  }
 
   // Handle form input value changes
   const handleInputChange = (e) => {
@@ -35,17 +56,41 @@ const NoteList = () => {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
+  //validation
+  const validateForm = () => {
+    if (!formData.title.trim()) {
+      setErrorMsg('Note title cannot be empty!');
+      return false;
+    }
+    if(!formData.content.trim()) {
+      setErrorMsg('Note content cannot be empty!');
+      return false;
+    }
+    return true;
+  }
+
   // Handle new note creation
   const handleCreateNote = async (e) => {
     e.preventDefault();
-    if (!formData.title || !formData.content) return;
+    if (!validateForm()) return;
 
     try {
-      const newNote = await api.post('/notes', formData);
-      setNotes(prev => [newNote, ...prev]);
-      resetForm();
+      setFormSubmitting(true);
+      const submitData = {
+        ...formData,
+        category: formData.category.trim() || 'default'
+      };
+      const res = await api.post('/notes', submitData);
+      if (res?.success) {
+        setNotes(prev => [res.data, ...prev]);
+        resetForm();
+      }
     } catch (err) {
-      console.error('Failed to create note: ', err);
+      if (err.response?.status === 401) return navigate('/login');
+      const msg = err.response?.data?.message || 'Failed to create note';
+      setErrorMsg(msg);
+    } finally {
+      setFormSubmitting(false);
     }
   };
 
@@ -57,19 +102,32 @@ const NoteList = () => {
       category: note.category
     });
     setEditingId(note.id);
+    setErrorMsg('');
+    document.querySelector(`.${styles.form}`)?.scrollIntoView({ behavior: 'smooth' });
   };
 
   // Handle note update submission
   const handleUpdateNote = async (e) => {
     e.preventDefault();
-    if (!formData.title || !formData.content || !editingId) return;
+    if (!validateForm() || !editingId) return;
 
     try {
-      const updatedNote = await api.put(`/notes/${editingId}`, formData);
-      setNotes(prev => prev.map(note => note.id === editingId ? updatedNote : note));
-      resetForm();
+      setFormSubmitting(true);
+      const submitData = {
+        ...formData,
+        category: formData.category.trim() || 'default'
+      };
+      const res = await api.put(`/notes/${editingId}`, submitData);
+      if (res?.success) {
+        setNotes(prev => prev.map(note => note.id === editingId ? res.data : note));
+        resetForm();
+      }
     } catch (err) {
-      console.error('Failed to update note: ', err);
+      if (err.response?.status === 401) return navigate('/login');
+      const msg = err.response?.data?.message || 'Failed to update note';
+      setErrorMsg(msg);
+    } finally {
+      setFormSubmitting(false);
     }
   };
 
@@ -78,10 +136,13 @@ const NoteList = () => {
     if (!window.confirm('Are you sure you want to delete this note?')) return;
 
     try {
-      await api.delete(`/notes/${id}`);
-      setNotes(prev => prev.filter(note => note.id !== id));
+      const res = await api.delete(`/notes/${id}`);
+      if (res?.success) {
+        setNotes(prev => prev.filter(note => note.id !== id));
+      }
     } catch (err) {
-      console.error('Failed to delete note', err);
+      if (err.response?.status === 401) return navigate('/login');
+      setErrorMsg('Failed to delete note');
     }
   };
 
@@ -91,27 +152,72 @@ const NoteList = () => {
     setEditingId(null);
   };
 
-  // Fetch notes when component mounts
   useEffect(() => {
-    fetchNotes();
+    fetchData();
   }, []);
 
+
+  const formatTime = (timeStr) => {
+    if (!timeStr) return 'Unknown';
+    const date = new Date(timeStr);
+    return date.toString() === 'Invalid Date' ? 'Unknown' : date.toLocaleString();
+  };
+
+  const handleLogout = async () => {
+    try {
+      await api.post('/users/logout'); 
+      navigate('/login'); 
+    } catch (err) {
+      console.error('Failed to logout：', err);
+      setErrorMsg('Logout failed, please try again');
+    }
+  };
+
+  //useEffect(()=> {
+  //  const testNote = [
+  //  {
+  //    id: 1,
+  //    title: 'Test Note',
+  //    content: 'This is a test note',
+  //    category: 'default',
+  //    createdAt: new Date().toISOString()
+  //  }
+  //];
+  //  setNotes(testNote);
+  //},[]);
+
   return (
-    <> {/* 用空标签包裹，避免多余DOM节点 */}
-      {/* 标题容器：单独抽离出container，实现占满整行效果【核心修改：结构调整】 */}
+    <div className={styles.noteListWrapper}>
+      {errorMsg && (
+        <div className={styles.errorMsgMask} onClick={() => setErrorMsg('')}>
+          <div className={styles.errorMsgModal} onClick={(e) => e.stopPropagation()}>
+            <button 
+              className={styles.errorMsgClose} 
+              onClick={() => setErrorMsg('')}
+          >
+             ×
+          </button>
+          <p className={styles.errorMsgText}>{errorMsg}</p>
+      </div>
+    </div>
+  )}
+
       <div className={styles.titleLayout}>
         <h1 className={styles.titlePanel}>🔹 Bullet Note</h1>
+        <span className={styles.userinfo}>Welcome, <strong>{userInfo?.username || 'User'}</strong><button onClick={handleLogout} className={styles.logoutBtn}>
+              Logout
+            </button></span>
       </div>
-      {/* 主容器：专门承载左表单+右列表的并排布局 */}
+
       <div className={styles.container}>
-        {/* 左侧面板：表单 */}
         <div className={styles.rowPanel}>
           <form
             onSubmit={editingId ? handleUpdateNote : handleCreateNote}
             className={styles.form}
+            noValidate
           >
             <h3 className={styles.formTitle}>
-              {editingId ? 'Edit Note' : 'Create New Note'}
+              {editingId ? '📝 Edit Note' : '✏️ Create New Note'}
             </h3>
 
             <div className={styles.formGroup}>
@@ -121,8 +227,9 @@ const NoteList = () => {
                 name="title"
                 value={formData.title}
                 onChange={handleInputChange}
-                placeholder="Enter note title"
+                placeholder="Enter note title (required)"
                 className={styles.input}
+                disabled={formSubmitting}
               />
             </div>
 
@@ -132,9 +239,10 @@ const NoteList = () => {
                 name="content"
                 value={formData.content}
                 onChange={handleInputChange}
-                placeholder="Enter note content"
+                placeholder="Enter note content (required)"
                 className={styles.textarea}
                 rows={5}
+                disabled={formSubmitting}
               />
             </div>
 
@@ -147,12 +255,17 @@ const NoteList = () => {
                 onChange={handleInputChange}
                 placeholder="Enter category (optional)"
                 className={styles.input}
+                disabled={formSubmitting}
               />
             </div>
 
             <div className={styles.buttonGroup}>
-              <button type="submit" className={styles.submitBtn}>
-                {editingId ? 'Update Note' : 'Add Note'}
+              <button
+                type="submit"
+                className={styles.submitBtn}
+                disabled={formSubmitting}
+              >
+                {formSubmitting ? 'Processing...' : (editingId ? 'Update Note' : 'Add Note')}
               </button>
 
               {editingId && (
@@ -160,6 +273,7 @@ const NoteList = () => {
                   type="button"
                   onClick={resetForm}
                   className={styles.cancelBtn}
+                  disabled={formSubmitting}
                 >
                   Cancel Edit
                 </button>
@@ -167,17 +281,16 @@ const NoteList = () => {
             </div>
           </form>
         </div>
-            
-        {/* 右侧面板：笔记列表 */}
+
         <div className={styles.notesList}>
-          <h2 className={styles.listTitle}>My Notes</h2>
-            
+          <h2 className={styles.listTitle}>My Notes ({Array.isArray(notes) ? notes.length : 0})</h2>
+
           {loading ? (
-            <p className={styles.loading}>Loading...</p>
-          ) : notes.length === 0 ? (
-            <p className={styles.empty}>No notes yet</p>
+            <p className={styles.loading}>Loading notes...</p>
+          ) : Array.isArray(notes) && notes.length === 0 ? (
+            <p className={styles.empty}>📭 No notes yet, create your first note!</p>
           ) : (
-            notes.map((note) => (
+            Array.isArray(notes) && notes.map((note) => (
               <div key={note.id} className={styles.noteCard}>
                 <div className={styles.noteHeader}>
                   <h3 className={styles.noteTitle}>{note.title}</h3>
@@ -187,10 +300,7 @@ const NoteList = () => {
                 <p className={styles.noteContent}>{note.content}</p>
 
                 <div className={styles.noteMeta}>
-                  <span className={styles.noteTime}>
-                    {new Date(note.createdAt).toLocaleString()}
-                  </span>
-
+                  <span className={styles.noteTime}>{formatTime(note.createdAt)}</span>
                   <div className={styles.noteBtnGroup}>
                     <button
                       onClick={() => handleEditNote(note)}
@@ -198,7 +308,6 @@ const NoteList = () => {
                     >
                       Edit
                     </button>
-
                     <button
                       onClick={() => handleDeleteNote(note.id)}
                       className={styles.deleteBtn}
@@ -212,7 +321,8 @@ const NoteList = () => {
           )}
         </div>
       </div>
-    </>
+    </div>
   );
 };
+
 export default NoteList;

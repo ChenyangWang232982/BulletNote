@@ -12,4 +12,5 @@ router.post('/login', login);
 router.post('/register', registration);
 router.get('/info', protect, getUserInfo);
 router.post('/logout', protect, logout);
+
 module.exports = router;

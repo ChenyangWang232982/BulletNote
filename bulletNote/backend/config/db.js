@@ -25,8 +25,7 @@ const connectDB = async () => {
         await sequelize.authenticate();
         console.log('Connect successfully');
 
-        await sequelize.sync({ alter: true,
-                               force: true
+        await sequelize.sync({ alter: true
                             });  //synchronous content betweeb the database and project
         console.log('Synchronization completed')
     } catch (error) {

@@ -3,41 +3,54 @@
   padding: 0;
   box-sizing: border-box;
 }
-
-/* 主容器：核心修改为横向布局，承载左表单右列表【修改：全量调整布局逻辑】 */
+.noteListWrapper {
+  min-height: 100vh; 
+  padding: 20px; 
+  background-color: #242424; 
+}
 .container {
   display: flex;
-  flex-direction: row; /* 【关键】从column改为row，实现左右并排 */
-  height: calc(100vh - 120px); /* 【关键】扣除标题高度，避免整体页面滚动 */
-  width: 100vw;
+  flex-direction: row; 
+  height: calc(100vh - 150px);
+  width: 100%;
   margin: 0;
-  padding: 0 20px; /* 左右内边距，避免贴浏览器边缘 */
   overflow: hidden;
-  gap: 20px; /* 【新增】表单和列表之间的间距 */
+  gap: 20px; 
 }
 
-/* 标题外层容器【修改：独立抽离后，单独控制标题布局】 */
+
 .titleLayout {
-  width: 100%; /* 强制占满整行 */
-  padding: 20px 20px 10px; /* 上下内边距，和主容器内边距对齐 */
+  position: relative;
+  width: 100%;
+  padding-right: 220px;
+  margin-bottom: 24px; 
+  padding-left: 16px;
+  box-sizing: border-box;
 }
 
-/* 标题样式【修改：匹配JSX的titlePanel类名，原CSS是title，修正后样式生效】 */
+
 .titlePanel {
-  text-align: left; /* 标题靠左，改center即可居中 */
+  text-align: left; 
+  top: 50%;
   color: #2f69a3;
-  margin: 0; /* 清除默认边距，避免多余空白 */
-  font-size: 2rem; /* 放大字号，更醒目 */
+  margin: 0; 
+  font-size: 2rem; 
 }
 
-/* 表单外层面板【修改：固定宽度，撑满主容器高度】 */
+.userinfo {
+  position: absolute;
+  right: 16px;
+  top: 0;
+  margin: 0;
+}
+
+
 .rowPanel {
-  display: flex; /* 补全flex，确保子元素form撑满宽度 */
-  flex: 0 0 380px; /* 【关键】固定宽度380px，不拉伸不压缩，可自定义 */
-  height: 100%; /* 撑满主容器高度 */
+  display: flex; 
+  flex: 0 0 380px; 
+  height: 100%; 
 }
 
-/* 表单样式【修改：微调高度，撑满外层rowPanel】 */
 .form {
   background: rgba(0, 149, 255, 0.4);   
   backdrop-filter: blur(12px);           
@@ -47,10 +60,10 @@
   padding: 24px;
   margin: 0;
   box-shadow: 1px 0 8px rgba(0,0,0,0.06);
-  width: 100%; /* 【修改】撑满rowPanel宽度 */
-  height: 100%; /* 【修改】撑满rowPanel高度 */
-  overflow-y: auto; /* 内容过多时，表单内部滚动 */
-  /* 移除原有固定宽度/高度，由rowPanel控制 */
+  width: 100%; 
+  height: 100%; 
+  overflow-y: auto; 
+
 }
 
 .formTitle {
@@ -113,19 +126,17 @@
   background: #7f8c8d;
 }
 
-/* 笔记列表【修改：核心调整为自适应剩余宽度，撑满高度】 */
 .notesList {
   flex: 0 0 50vw;
   display: flex;
   flex-direction: column;
-  height: 100%; /* 【修改】撑满主容器高度 */
+  height: 100%; 
   border-radius: 12px;
   background: rgb(255,255,255,0.6);
-  overflow-y: auto; /* 内容过多时，列表内部滚动 */
+  overflow-y: auto; 
   padding: 24px 28px;
   box-sizing: border-box;
-  box-shadow: 1px 0 8px rgba(0,0,0,0.06); /* 【新增】加阴影，和表单视觉统一 */
-  /* 移除原有多余的width/flex设置，由flex:1控制宽度 */
+  box-shadow: 1px 0 8px rgba(0,0,0,0.06); 
 }
 
 .listTitle {
@@ -242,4 +253,59 @@
 
 .deleteBtn:hover {
   background: #c0392b;
+}
+
+.errorMsgMask {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5); 
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999; 
+  cursor: pointer; 
+}
+
+.errorMsgModal {
+  background-color: white;
+  border-radius: 12px;
+  padding: 24px 32px;
+  min-width: 300px;
+  max-width: 500px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  cursor: default; 
+  text-align: center;
+  position: relative;
+}
+
+.errorMsgText {
+  color: #e74c3c; 
+  font-size: 1rem;
+  line-height: 1.6;
+  margin: 0;
+}
+
+.errorMsgClose {
+  position: absolute;
+  top: 12px;
+  right: 16px;
+  border: none;
+  background: transparent;
+  color: #7f8c8d;
+  font-size: 1.2rem;
+  cursor: pointer;
+  padding: 4px;
+  line-height: 1;
+}
+
+.errorMsgClose:hover {
+  color: #e74c3c;
+}
+
+.logoutBtn {
+  margin: 15px;
+  font-size: smaller;
 }

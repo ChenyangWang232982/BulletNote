@@ -5,28 +5,45 @@ const { connectDB } = require('./config/db');
 const userRoutes = require('./routes/userRoutes');
 const noteRoutes = require('./routes/noteRoutes');
 const cookieParser = require('cookie-parser');
-const { protect } = require('./middleware/auth.middleware');
 
+if (process.env.NODE_ENV !== "development ") {
+  console.log = () => {};          
+  console.debug = () => {};        
+}
 // initialize application
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-//connect database
-connectDB();
+app.use(express.json());                     
+app.use(express.urlencoded({ extended: true })); 
+app.use(cookieParser());
+
 
 // middlewear
 app.use(cors({
   origin: 'http://localhost:5173',
   credentials: true, //Allowed to cross origin with cookie
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  allowedHeaders: ['Content-Type']
+  allowedHeaders: ['Content-Type', 'X-Skip-Alert']
 })); 
-app.use(express.json()); 
-app.use(cookieParser());
+
+app.use((req, res, next) => {
+  console.log(`【Global request log】${req.method} ${req.url} - body:`, req.body);
+  next();
+});
+
+//connect database
+connectDB();
 
 //router
 app.use('/api/users', userRoutes);
 app.use('/api/notes', noteRoutes);
+
+//error handle
+app.use((err, req, res, next) => {
+  console.error('Global error:', err);
+  res.status(500).json({ success: false, message: 'Server error' });
+});
 
 // route testing
 app.get('/', (req, res) => {

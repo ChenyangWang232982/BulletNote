@@ -5,6 +5,7 @@ const { JWT_EXPIRES_IN, Op } = require('../models/User');
 exports.registration = async (req, res) => {
     try {
         //get params from frontend
+        console.log('start to register')
         const {username, password, email} = req.body || {};
         //params validation
         if (!username || !password) {
@@ -53,10 +54,12 @@ exports.registration = async (req, res) => {
 
 exports.login = async (req, res) => {
     try {
+        console.log("logging");
         //get params from frontend
-        const {usernameOrPassword, password} = req.body || {};
+        const {usernameOrEmail, password} = req.body || {};
         //params validation
-        if (!usernameOrPassword || !password) {
+        if (!usernameOrEmail || !password) {
+            console.log("empty")
             return res.status(400).json({
                 success: false,
                 message: 'Username/Email and password cannot be empty.'
@@ -66,19 +69,22 @@ exports.login = async (req, res) => {
         //existing validation
         const existingUser = await User.findOne({
             where: {
-                [Op.or]: [{username: usernameOrPassword}, {email: usernameOrPassword}]
+                [Op.or]: [{username: usernameOrEmail}, {email: usernameOrEmail}]
             }
         });
         if (!existingUser) {
+            console.log("no user");
             return res.status(401).json({
                 success: false,
-                message: 'Incorrect username or password'
+                message: 'Incorrect username/email or password'
             });
         }
+        console.log("detected user")
 
         //Validate password
         const isPwdCorrect = await existingUser.comparePassword(password);
         if (!isPwdCorrect) {
+            console.log("password error")
             return res.status(401).json({
                 success: false,
                 message: 'Incorrect username or password'
@@ -86,6 +92,7 @@ exports.login = async (req, res) => {
         }
 
         const token = existingUser.generateToken();
+        console.log("create token")
 
         res.cookie(
             'note_token',
@@ -98,6 +105,7 @@ exports.login = async (req, res) => {
                 path: '/'
             }
         );
+        console.log("put in cookie")
 
         return res.status(200).json({
             success: true,
@@ -116,8 +124,10 @@ exports.login = async (req, res) => {
         });
     }
 }
+
 exports.getUserInfo = async (req, res) => {
     try {
+        console.log("trying to get info")
         const userInfo = req.user;
 
         return res.status(200).json({
@@ -136,6 +146,7 @@ exports.getUserInfo = async (req, res) => {
 
 exports.logout = async (req,res) => {
     try {
+        console.log('starting to logout');
         res.clearCookie('note_token', {
             httpOnly: true,
             sameSite: 'strict',

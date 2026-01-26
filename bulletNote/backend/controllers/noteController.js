@@ -3,19 +3,24 @@ const { protect } = require('../middleware/auth.middleware');
 //get notes
 exports.getNotes = async (req, res) => {
     try {
+        console.log('starting to load notes')
         const userId = req.user.id;
         const notes = await Note.findAll({
-            where: {userId},
+            where: {userId: req.user.id},
             order: [['createdAt', 'DESC']],
             include: [
                 {
                     model: User,
                     as: 'author',
-                    attributes: ['id', 'username', 'email']
                 }
             ] 
         });
-        res.status(200).json(notes);
+        console.log(notes);
+        res.status(200).json({
+            success: true,
+            message: 'Successfully loading notes',
+            data: notes.map(note => note.toJSON())
+        });
     } catch (err) {
         console.error('Failure to load notes: ', err);
         res.status(500).json({ message: 'Server error'});
@@ -24,16 +29,19 @@ exports.getNotes = async (req, res) => {
 
 //create notes
 exports.createNote = async (req, res) => {
+    console.log('creating note')
     const userId = req.user.id;
     const {title, content, category} = req.body;
 
     //validation
     if (!title || !content) {
-        return res.status(400).json({message: 'Cannot be empty'});
+        return res.status(400).json({
+            success: false,
+            message: 'Cannot be empty'});
     }
     try {
         const newNote = await Note.create({
-            serId,
+            userId,
             title,
             content,
             category: category || 'default',
@@ -45,7 +53,10 @@ exports.createNote = async (req, res) => {
                 }
             ] 
         });
-        res.status(201).json(newNote);
+        res.status(201).json({
+            success: true,
+            data: newNote
+        });
     } catch (err) {
         console.error('Failure to create:', err)
         res.status(500).json({message: 'Server error, failure to create note'})
@@ -67,7 +78,9 @@ exports.updateNote = async (req,res) => {
             }
         });
         if (!note) {
-            return res.status(404).json({message: 'Note does not exist'})
+            return res.status(404).json({
+                success: false,
+                message: 'Note does not exist'})
         }
 
         //update notes
@@ -77,10 +90,16 @@ exports.updateNote = async (req,res) => {
             category: category || note.category
         });
 
-        res.status(200).json(note);
+        res.status(200).json({
+            success: true,
+            data: note
+        }
+        );
     } catch (err) {
         console.error('Failure to update', err);
-        res.status(500).json({ message: 'Server error, failure to update notes'});
+        res.status(500).json({ 
+            success: false,
+            message: 'Server error, failure to update notes'});
     }
 };
 
@@ -96,13 +115,19 @@ exports.deleteNote = async (req, res) => {
             }
         });
         if(!note) {
-            return res.status(404).json({message: 'Note does not exist'});
+            return res.status(404).json({
+                success: false,
+                message: 'Note does not exist'});
         }
         await note.destroy();
-        res.status(200).json({message: 'Deleted note successfully'});
+        res.status(200).json({
+            success: true,
+            message: 'Deleted note successfully'});
     } catch (err) {
         console.error('Failure to delete note', err);
-        res.status(500).json({message: 'Server error, failure to delete note'});
+        res.status(500).json({
+            success:false,
+            message: 'Server error, failure to delete note'});
     }
 };
 
