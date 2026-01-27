@@ -6,6 +6,7 @@ Since this project was solely intended for full-stack learning purposes, I did n
 
 1. Basic operation for notes (e.g. create, delete, update)
 2. Authentication (e.g. login, register, logout)
+3. Add dynamic param (useless for this project)
 
 ### Todo List
 
