@@ -9,7 +9,7 @@ function App() {
       <Routes>
         <Route path="/" element={<Login />} />
         <Route path="/login" element={<Login />} />
-        <Route path="/notes" element={<NoteList />} />
+        <Route path="/notes/:username" element={<NoteList />} />
         <Route path="*" element={<div>404</div>} />
       </Routes>
     </div>

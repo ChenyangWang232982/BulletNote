@@ -27,7 +27,7 @@ const Login = () => {
             
             if (resData?.success) { 
                 console.log('login successfully', resData.data);
-                navigate('/notes', { replace: true }); 
+                navigate(`/notes/${resData.data.username}`, { replace: true }); 
             }
         } catch (err) {
         }
@@ -67,7 +67,8 @@ const Login = () => {
         console.log('JSON format：', JSON.stringify(formData));
         try {
             const res =await api.post('/users/login', formData);
-            navigate('/notes');
+            const info = await api.get('/users/info')
+            navigate(`/notes/${info.data.username}`);
         } catch (err) {
             setErrorMsg(
                 err.response?.data?.message || 'Failure to login'
