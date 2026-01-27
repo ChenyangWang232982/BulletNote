@@ -131,23 +131,31 @@ exports.deleteNote = async (req, res) => {
     }
 };
 
-exports.getNoteById = async (req, res) => {
-    const { id } = req.params;
+exports.getNoteByTitle = async (req, res) => {
+    const { name } = req.params;
     const userId = req.user.id;
 
     try {
-        const note = await Note.findOne({
+        const note = await Note.findAll({
             where: {
-                id,
+                title: name,
                 userId
-            }
+            },
+            order: [['createdAt', 'DESC']]
         });
         if(!note) {
-            return res.status(404).json({message: 'Note does not exist'});
+            return res.status(404).json({
+                success: false,
+                message: 'Note does not exist'});
         }
-        res.status(200).json(note);
+        res.status(200).json({
+            success: true,
+            data: note
+        });
     } catch (err) {
         console.error('Failure to get note', err);
-        res.status(500).json({message: 'Server error, failure to get note'});
+        res.status(500).json({
+            success: false,
+            message: 'Server error, failure to get note'});
     }
 };

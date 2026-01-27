@@ -19,6 +19,10 @@ const NoteList = () => {
   const [formSubmitting, setFormSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
   const [userInfo, setUserInfo] = useState(null);
+  const [searchTitle, setSearchTitle] = useState('');
+  const [searchModalVisible, setSearchModalVisible] = useState(false);
+  const [searchResultNote, setSearchResultNote] = useState(null); 
+
   const navigate = useNavigate();
   
 
@@ -120,6 +124,7 @@ const NoteList = () => {
       const res = await api.put(`/notes/${editingId}`, submitData);
       if (res?.success) {
         setNotes(prev => prev.map(note => note.id === editingId ? res.data : note));
+        setSearchResultNote(prev => prev.map(note => note.id === editingId ? res.data : note));
         resetForm();
       }
     } catch (err) {
@@ -139,6 +144,10 @@ const NoteList = () => {
       const res = await api.delete(`/notes/${id}`);
       if (res?.success) {
         setNotes(prev => prev.filter(note => note.id !== id));
+        setSearchResultNote(prev => prev.filter(note => note.id !== id));
+        if (searchResultNote.filter(note => note.id !== id).length === 0) {
+            setSearchModalVisible(false);
+        }
       }
     } catch (err) {
       if (err.response?.status === 401) return navigate('/login');
@@ -170,6 +179,7 @@ const NoteList = () => {
     } catch (err) {
       console.error('Failed to logout：', err);
       setErrorMsg('Logout failed, please try again');
+      navigate('/login'); 
     }
   };
 
@@ -186,30 +196,122 @@ const NoteList = () => {
   //  setNotes(testNote);
   //},[]);
 
+  const searchNoteByTitle = async () => {
+  try {
+    setLoading(true);
+    setErrorMsg('');
+    const targetTitle = searchTitle.trim();
+    if (!targetTitle) {
+      setErrorMsg('Note title cannot be empty!');
+      return;
+    }
+  
+    const res = await api.get(`/notes/title/${targetTitle}`);
+    if (!res?.success) {
+      setErrorMsg(res?.data?.message || 'Cannot find this note!');
+      setSearchResultNote(null); 
+      setSearchModalVisible(false); 
+      return;
+    }
+  
+    setSearchResultNote(res.data); 
+    setSearchModalVisible(true); 
+    setSearchTitle(''); 
+  } catch (err) {
+    const errMsg = err.response?.data?.message || 'Server error, failed to search note!';
+    setErrorMsg(errMsg);
+    setSearchResultNote(null);
+    setSearchModalVisible(false);
+    console.error('Search note failed：', err);
+  } finally {
+    setLoading(false);
+  }
+};
+
+  const closeSearchModal = () => {
+    setSearchModalVisible(false);
+    setSearchResultNote(null); 
+  };
+
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      searchNoteByTitle();
+    }
+  }
+
+
   return (
     <div className={styles.noteListWrapper}>
+      {/* error message */}
       {errorMsg && (
         <div className={styles.errorMsgMask} onClick={() => setErrorMsg('')}>
           <div className={styles.errorMsgModal} onClick={(e) => e.stopPropagation()}>
             <button 
               className={styles.errorMsgClose} 
               onClick={() => setErrorMsg('')}
-          >
-             ×
-          </button>
-          <p className={styles.errorMsgText}>{errorMsg}</p>
-      </div>
-    </div>
-  )}
+            >
+              ×
+            </button>
+            <p className={styles.errorMsgText}>{errorMsg}</p>
+          </div>
+        </div>
+      )}
 
+      {/* search result */}
+      {searchModalVisible && searchResultNote.length > 0 && (
+        <div className={styles.searchModalMask} onClick={closeSearchModal}>
+          <div className={styles.searchModalContent} onClick={(e) => e.stopPropagation()}>
+            <button className={styles.searchModalClose} onClick={closeSearchModal}>×</button>
+            {/* title and number of noites */}
+            <h3 className={styles.searchModalTitle}>🔍 Search Result ({searchResultNote.length})</h3>
+            {/* traverse all notes */}
+            {searchResultNote.map(note => (
+              <div key={note.id} className={styles.noteCard}>
+                <div className={styles.noteHeader}>
+                  <h3 className={styles.noteTitle}>{note.title}</h3>
+                  <span className={styles.noteCategory}>{note.category}</span>
+                </div>
+                <p className={styles.noteContent}>{note.content}</p>
+                <div className={styles.noteMeta}>
+                  <span className={styles.noteTime}>{formatTime(note.createdAt)}</span>
+                  <div className={styles.noteBtnGroup}>
+                    <button
+                      onClick={() => {
+                        handleEditNote(note);
+                        closeSearchModal();
+                      }}
+                      className={styles.editBtn}
+                    >
+                      Edit
+                    </button>
+                    <button
+                      onClick={() => handleDeleteNote(note.id)}
+                      className={styles.deleteBtn}
+                    >
+                      Delete
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* title and logout */}
       <div className={styles.titleLayout}>
         <h1 className={styles.titlePanel}>🔹 Bullet Note</h1>
-        <span className={styles.userinfo}>Welcome, <strong>{userInfo?.username || 'User'}</strong><button onClick={handleLogout} className={styles.logoutBtn}>
-              Logout
-            </button></span>
+        <span className={styles.userinfo}>Welcome, <strong>{userInfo?.username || 'User'}</strong>
+          <button onClick={handleLogout} className={styles.logoutBtn}>
+            Logout
+          </button>
+        </span>
       </div>
 
+      {/* form */}
       <div className={styles.container}>
+        {/* create/edit */}
         <div className={styles.rowPanel}>
           <form
             onSubmit={editingId ? handleUpdateNote : handleCreateNote}
@@ -219,7 +321,6 @@ const NoteList = () => {
             <h3 className={styles.formTitle}>
               {editingId ? '📝 Edit Note' : '✏️ Create New Note'}
             </h3>
-
             <div className={styles.formGroup}>
               <label className={styles.label}>Title：</label>
               <input
@@ -232,7 +333,6 @@ const NoteList = () => {
                 disabled={formSubmitting}
               />
             </div>
-
             <div className={styles.formGroup}>
               <label className={styles.label}>Content：</label>
               <textarea
@@ -245,7 +345,6 @@ const NoteList = () => {
                 disabled={formSubmitting}
               />
             </div>
-
             <div className={styles.formGroup}>
               <label className={styles.label}>Category：</label>
               <input
@@ -258,7 +357,6 @@ const NoteList = () => {
                 disabled={formSubmitting}
               />
             </div>
-
             <div className={styles.buttonGroup}>
               <button
                 type="submit"
@@ -267,7 +365,6 @@ const NoteList = () => {
               >
                 {formSubmitting ? 'Processing...' : (editingId ? 'Update Note' : 'Add Note')}
               </button>
-
               {editingId && (
                 <button
                   type="button"
@@ -282,9 +379,31 @@ const NoteList = () => {
           </form>
         </div>
 
+        {/* note list and search */}
         <div className={styles.notesList}>
-          <h2 className={styles.listTitle}>My Notes ({Array.isArray(notes) ? notes.length : 0})</h2>
+          <div className={styles.noteTitleSearchWrap}>
+            <h2 className={styles.listTitle}>My Notes ({Array.isArray(notes) ? notes.length : 0})</h2>
+            <div className={styles.searchBar}>
+              <input
+                type="text"
+                placeholder="Search by title..."
+                value={searchTitle}
+                onChange={(e) => setSearchTitle(e.target.value)}
+                onKeyDown={handleKeyDown}
+                className={styles.searchInput}
+                disabled={loading || formSubmitting}
+              />
+              <button
+                onClick={searchNoteByTitle}
+                className={styles.searchBtn}
+                disabled={loading || formSubmitting || !searchTitle.trim()}
+              >
+                Search
+              </button>
+            </div>
+          </div>
 
+          {/* loading notes */}
           {loading ? (
             <p className={styles.loading}>Loading notes...</p>
           ) : Array.isArray(notes) && notes.length === 0 ? (
@@ -296,9 +415,7 @@ const NoteList = () => {
                   <h3 className={styles.noteTitle}>{note.title}</h3>
                   <span className={styles.noteCategory}>{note.category}</span>
                 </div>
-
                 <p className={styles.noteContent}>{note.content}</p>
-
                 <div className={styles.noteMeta}>
                   <span className={styles.noteTime}>{formatTime(note.createdAt)}</span>
                   <div className={styles.noteBtnGroup}>

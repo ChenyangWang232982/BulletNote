@@ -7,12 +7,12 @@ const {
   createNote,
   updateNote,
   deleteNote,
-  getNoteById
+  getNoteByTitle
 } = require('../controllers/noteController');
 
 router.use(protect);
 router.get('/', getNotes);
-router.get('/:id', getNoteById); 
+router.get('/title/:name', getNoteByTitle); 
 router.post('/', createNote); 
 router.put('/:id', updateNote); 
 router.delete('/:id', deleteNote); 

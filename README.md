@@ -7,10 +7,11 @@ Since this project was solely intended for full-stack learning purposes, I did n
 1. Basic operation for notes (e.g. create, delete, update)
 2. Authentication (e.g. login, register, logout)
 3. Add dynamic param (useless for this project)
+4. Search function
 
 ### Todo List
 
-1. Search function
+1. Search function (completed)
 2. Dashboard
 3. File upload & export
 4. time setting/Deadline

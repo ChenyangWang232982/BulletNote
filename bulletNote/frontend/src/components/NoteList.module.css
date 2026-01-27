@@ -273,8 +273,8 @@
   background-color: white;
   border-radius: 12px;
   padding: 24px 32px;
-  min-width: 300px;
-  max-width: 500px;
+  min-width: 500px;
+  max-width: 700px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
   cursor: default; 
   text-align: center;
@@ -282,7 +282,7 @@
 }
 
 .errorMsgText {
-  color: #e74c3c; 
+  color: #272424; 
   font-size: 1rem;
   line-height: 1.6;
   margin: 0;
@@ -302,10 +302,50 @@
 }
 
 .errorMsgClose:hover {
-  color: #e74c3c;
+  color: #e21a1a;
 }
 
 .logoutBtn {
   margin: 15px;
   font-size: smaller;
+}
+.searchBtn {
+  padding: 4px 12px;
+  font-size: 12px;
+  border: none;
+  border-radius: 4px;
+  background: #1f1d1d;
+  color: #fff;
+  cursor: pointer;
+  margin: 5px;
+}
+.searchBtn:hover {
+  background: #000000;
+}
+
+.searchModalMask {
+  position: fixed; 
+  top: 0; left: 0; right: 0; bottom: 0; 
+  display: flex; justify-content: center; align-items: center; 
+  background: rgba(0,0,0,0.5);
+  z-index: 999; 
+}
+.searchModalContent {
+  background: white;
+  color:black;
+  padding: 20px;
+  border-radius: 8px;
+  position: relative; 
+  width: 700px; 
+  min-height: 300px; 
+  max-width: 100%; 
+}
+.searchModalClose {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  border: none;
+  background: transparent;
+  font-size: 5px;
+  cursor: pointer;
 }
