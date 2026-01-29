@@ -6,6 +6,7 @@ const userRoutes = require('./routes/userRoutes');
 const noteRoutes = require('./routes/noteRoutes');
 const cookieParser = require('cookie-parser');
 
+
 if (process.env.NODE_ENV !== "development ") {
   console.log = () => {};          
   console.debug = () => {};        
@@ -28,7 +29,7 @@ app.use(cors({
 })); 
 
 app.use((req, res, next) => {
-  console.log(`【Global request log】${req.method} ${req.url} - body:`, req.body);
+  if (process.env.Request == 1) {console.log(`【Global request log】${req.method} ${req.url} - body:`, req.body);}
   next();
 });
 

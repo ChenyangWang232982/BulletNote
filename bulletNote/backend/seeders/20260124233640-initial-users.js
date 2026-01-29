@@ -7,7 +7,7 @@ module.exports = {
     await queryInterface.bulkInsert('Users', [
       {
         username: 'root',
-        password: await bcrypt.hash('root', 12),  // 生产环境请用更强密码
+        password: await bcrypt.hash('root', 12),  
         email: 'root@example.com',
         createdAt: new Date(),
         updatedAt: new Date(),

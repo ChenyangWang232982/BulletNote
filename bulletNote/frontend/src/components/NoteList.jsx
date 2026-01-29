@@ -4,17 +4,13 @@ import styles from './NoteList.module.css';
 import { useNavigate } from 'react-router-dom';
 
 const NoteList = () => {
-  // State for storing note list data
   const [notes, setNotes] = useState([]);
-  // State for loading status
   const [loading, setLoading] = useState(true);
-  // State for form input data
   const [formData, setFormData] = useState({
     title: '',
     content: '',
     category: ''
   });
-  // State for storing the id of the note being edited
   const [editingId, setEditingId] = useState(null);
   const [formSubmitting, setFormSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
@@ -24,9 +20,7 @@ const NoteList = () => {
   const [searchResultNote, setSearchResultNote] = useState(null); 
 
   const navigate = useNavigate();
-  
 
-  //fetch userdata
   const fetchData = async () => {
     try {
       setLoading(true);
@@ -54,13 +48,11 @@ const NoteList = () => {
     }
   }
 
-  // Handle form input value changes
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  //validation
   const validateForm = () => {
     if (!formData.title.trim()) {
       setErrorMsg('Note title cannot be empty!');
@@ -73,7 +65,6 @@ const NoteList = () => {
     return true;
   }
 
-  // Handle new note creation
   const handleCreateNote = async (e) => {
     e.preventDefault();
     if (!validateForm()) return;
@@ -98,7 +89,6 @@ const NoteList = () => {
     }
   };
 
-  // Populate form with note data for editing
   const handleEditNote = (note) => {
     setFormData({
       title: note.title,
@@ -110,7 +100,6 @@ const NoteList = () => {
     document.querySelector(`.${styles.form}`)?.scrollIntoView({ behavior: 'smooth' });
   };
 
-  // Handle note update submission
   const handleUpdateNote = async (e) => {
     e.preventDefault();
     if (!validateForm() || !editingId) return;
@@ -124,7 +113,7 @@ const NoteList = () => {
       const res = await api.put(`/notes/${editingId}`, submitData);
       if (res?.success) {
         setNotes(prev => prev.map(note => note.id === editingId ? res.data : note));
-        setSearchResultNote(prev => prev.map(note => note.id === editingId ? res.data : note));
+        setSearchResultNote(prev => Array.isArray(prev) ? prev.map(note => note.id === editingId ? res.data : note) : prev);
         resetForm();
       }
     } catch (err) {
@@ -136,7 +125,6 @@ const NoteList = () => {
     }
   };
 
-  // Handle note deletion with confirmation
   const handleDeleteNote = async (id) => {
     if (!window.confirm('Are you sure you want to delete this note?')) return;
 
@@ -144,8 +132,9 @@ const NoteList = () => {
       const res = await api.delete(`/notes/${id}`);
       if (res?.success) {
         setNotes(prev => prev.filter(note => note.id !== id));
-        setSearchResultNote(prev => prev.filter(note => note.id !== id));
-        if (searchResultNote.filter(note => note.id !== id).length === 0) {
+        const filteredSearch = Array.isArray(searchResultNote) ? searchResultNote.filter(note => note.id !== id) : null;
+        setSearchResultNote(filteredSearch);
+        if (Array.isArray(filteredSearch) && filteredSearch.length === 0) {
             setSearchModalVisible(false);
         }
       }
@@ -155,7 +144,6 @@ const NoteList = () => {
     }
   };
 
-  // Reset form data and editing status
   const resetForm = () => {
     setFormData({ title: '', content: '', category: '' });
     setEditingId(null);
@@ -164,7 +152,6 @@ const NoteList = () => {
   useEffect(() => {
     fetchData();
   }, []);
-
 
   const formatTime = (timeStr) => {
     if (!timeStr) return 'Unknown';
@@ -182,19 +169,6 @@ const NoteList = () => {
       navigate('/login'); 
     }
   };
-
-  //useEffect(()=> {
-  //  const testNote = [
-  //  {
-  //    id: 1,
-  //    title: 'Test Note',
-  //    content: 'This is a test note',
-  //    category: 'default',
-  //    createdAt: new Date().toISOString()
-  //  }
-  //];
-  //  setNotes(testNote);
-  //},[]);
 
   const searchNoteByTitle = async () => {
   try {
@@ -240,10 +214,8 @@ const NoteList = () => {
     }
   }
 
-
   return (
     <div className={styles.noteListWrapper}>
-      {/* error message */}
       {errorMsg && (
         <div className={styles.errorMsgMask} onClick={() => setErrorMsg('')}>
           <div className={styles.errorMsgModal} onClick={(e) => e.stopPropagation()}>
@@ -258,14 +230,11 @@ const NoteList = () => {
         </div>
       )}
 
-      {/* search result */}
-      {searchModalVisible && searchResultNote.length > 0 && (
+      {searchModalVisible && Array.isArray(searchResultNote) && searchResultNote.length > 0 && (
         <div className={styles.searchModalMask} onClick={closeSearchModal}>
           <div className={styles.searchModalContent} onClick={(e) => e.stopPropagation()}>
             <button className={styles.searchModalClose} onClick={closeSearchModal}>×</button>
-            {/* title and number of noites */}
             <h3 className={styles.searchModalTitle}>🔍 Search Result ({searchResultNote.length})</h3>
-            {/* traverse all notes */}
             {searchResultNote.map(note => (
               <div key={note.id} className={styles.noteCard}>
                 <div className={styles.noteHeader}>
@@ -299,7 +268,6 @@ const NoteList = () => {
         </div>
       )}
 
-      {/* title and logout */}
       <div className={styles.titleLayout}>
         <h1 className={styles.titlePanel}>🔹 Bullet Note</h1>
         <span className={styles.userinfo}>Welcome, <strong>{userInfo?.username || 'User'}</strong>
@@ -309,9 +277,7 @@ const NoteList = () => {
         </span>
       </div>
 
-      {/* form */}
       <div className={styles.container}>
-        {/* create/edit */}
         <div className={styles.rowPanel}>
           <form
             onSubmit={editingId ? handleUpdateNote : handleCreateNote}
@@ -379,7 +345,6 @@ const NoteList = () => {
           </form>
         </div>
 
-        {/* note list and search */}
         <div className={styles.notesList}>
           <div className={styles.noteTitleSearchWrap}>
             <h2 className={styles.listTitle}>My Notes ({Array.isArray(notes) ? notes.length : 0})</h2>
@@ -403,7 +368,6 @@ const NoteList = () => {
             </div>
           </div>
 
-          {/* loading notes */}
           {loading ? (
             <p className={styles.loading}>Loading notes...</p>
           ) : Array.isArray(notes) && notes.length === 0 ? (

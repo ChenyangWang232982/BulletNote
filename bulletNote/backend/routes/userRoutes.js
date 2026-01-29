@@ -2,15 +2,15 @@ const express = require('express');
 const router = express.Router();
 const { protect } = require('../middleware/auth.middleware');
 const {
-    registration,
-    login,
-    logout,
-    getUserInfo
+    wrapperRegisteration,
+    wrapperLogin,
+    wrapperLogout,
+    wrapperGetUserInfo
 } = require('../controllers/userController');
 
-router.post('/login', login);
-router.post('/register', registration);
-router.get('/info', protect, getUserInfo);
-router.post('/logout', protect, logout);
+router.post('/login', wrapperLogin);
+router.post('/register', wrapperRegisteration);
+router.get('/info', protect, wrapperGetUserInfo);
+router.post('/logout', protect, wrapperLogout);
 
 module.exports = router;
