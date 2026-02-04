@@ -5,6 +5,8 @@ const { connectDB } = require('./config/db');
 const userRoutes = require('./routes/userRoutes');
 const noteRoutes = require('./routes/noteRoutes');
 const cookieParser = require('cookie-parser');
+const swaggerDocument = require('./swagger_output.json');
+const swaggerUi = require('swagger-ui-express');
 
 
 if (process.env.NODE_ENV !== "development ") {
@@ -32,14 +34,13 @@ app.use((req, res, next) => {
   if (process.env.Request == 1) {console.log(`【Global request log】${req.method} ${req.url} - body:`, req.body);}
   next();
 });
-
 //connect database
 connectDB();
 
 //router
 app.use('/api/users', userRoutes);
 app.use('/api/notes', noteRoutes);
-
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 //error handle
 app.use((err, req, res, next) => {
   console.error('Global error:', err);

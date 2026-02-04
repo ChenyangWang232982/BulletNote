@@ -16,10 +16,10 @@ registration = async (req, res) => {
     //existaing validation
     const existingUser = await User.findOne({
         where: {
-            username
+            [Op.or]: [{username: username}, {email: email}]
         }
     });
-    if (existingUser) {
+    if (existingUser || existingEmail) {
         console.log("existing user");
         return res.status(400).json({
             success: false,
