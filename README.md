@@ -17,7 +17,8 @@ Since this project was solely intended for full-stack learning purposes, I did n
 2. Dashboard
 3. File upload & export
 4. time setting/Deadline
-5. ...
+5. Beautify the appearance 
+6. ...
 
 ### Prerequisites
 
