@@ -41,10 +41,14 @@ Backend: JS, express, RESTful API
 
    `cd backend`
 
+   Create .env file and fill it.
+
+   `copy .env.example .env` 
+
    Create test account
-
+   
    `$env:NODE_ENV="development" npx sequelize-cli db:seed:all` 
-
+   
    ```
    username: admin	password: admin	email: admin@gmail.com
    username: root	password: root	email: root@gmail.com
