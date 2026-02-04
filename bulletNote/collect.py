@@ -4,7 +4,10 @@ import sys
 # 根目录：脚本所在的目录（D:\work\project2），无需修改
 ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
 # 要汇总的文件后缀（仅py和js，如需新增可直接添加，如".html"）
-TARGET_SUFFIXES = (".js")
+TARGET_SUFFIXES = (".js", ".py")  # 补充.py，原代码只写了.js
+
+# 需要跳过的文件夹名称（可扩展添加其他需要跳过的文件夹）
+SKIP_FOLDERS = ("node_modules",)
 
 def main():
     # 终端欢迎信息，明确功能
@@ -44,11 +47,16 @@ def main():
         summary_f.write(f"\nRoot Directory: {ROOT_DIR}")
         summary_f.write(f"\nTarget Folder: {target_folder}")
         summary_f.write(f"\nTarget File Types: {', '.join(TARGET_SUFFIXES)}")
+        summary_f.write(f"\nSkipped Folders: {', '.join(SKIP_FOLDERS)}")  # 新增：标注跳过的文件夹
         summary_f.write(f"\nTraversal Order: Directory Tree (Parent → Child, sorted by filename)")
         summary_f.write(f"\n" + "=" * 100 + "\n\n")
 
         # 递归遍历目标文件夹：os.walk天然按目录树顺序，子文件夹后遍历
-        for current_dir, _, files in os.walk(target_folder):
+        for current_dir, dirs, files in os.walk(target_folder):
+            # 核心修改：过滤掉需要跳过的文件夹（修改dirs列表会影响os.walk的递归遍历）
+            # 生成新的dirs列表，排除SKIP_FOLDERS中的文件夹
+            dirs[:] = [d for d in dirs if d not in SKIP_FOLDERS]
+            
             # 同文件夹内文件按文件名升序排序，保证遍历顺序固定
             sorted_files = sorted(files)
             for file_name in sorted_files:
@@ -83,7 +91,7 @@ def main():
     print(f"Total .py & .js files summarized: {summarized_count}")
     print(f"Summary file saved to: {summary_txt_path}")
     if summarized_count == 0:
-        print(f"Note: No .py or .js files found in '{target_folder_name}'.")
+        print(f"Note: No .py or .js files found in '{target_folder_name}' (skipped node_modules).")
 
 if __name__ == "__main__":
     main()

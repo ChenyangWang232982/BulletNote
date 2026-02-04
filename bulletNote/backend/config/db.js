@@ -1,14 +1,17 @@
 const { Sequelize } = require('sequelize');  //ORM tool
 require('dotenv').config();
+const config = require('./config');
 
+const env = process.env.NODE_ENV || 'development';
+const dbConfig = config[env]
 const sequelize = new Sequelize(
-    process.env.MYSQL_DB_NAME,
-    process.env.MYSQL_USER,
-    process.env.MYSQL_PASSWORD,
+    dbConfig.database,
+    dbConfig.username,
+    dbConfig.password,
     {
-        host: process.env.MYSQL_HOST,
-        dialect: 'mysql',
-        port: process.env.MYSQL_PORT || 3306,
+        host: dbConfig.host,
+        dialect: dbConfig.dialect,
+        port: dbConfig.port,
         logging: false, // closed sql log
         pool: {
             max: 5,

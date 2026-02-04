@@ -9,7 +9,7 @@ const swaggerDocument = require('./swagger_output.json');
 const swaggerUi = require('swagger-ui-express');
 
 
-if (process.env.NODE_ENV !== "development ") {
+if (process.env.NODE_ENV !== "development") {
   console.log = () => {};          
   console.debug = () => {};        
 }
