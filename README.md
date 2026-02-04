@@ -9,6 +9,7 @@ Since this project was solely intended for full-stack learning purposes, I did n
 3. Add dynamic param (useless for this project)
 4. Search function --- 28.1.2026
 5. Simple aspect function(To avoid try ... catch all the time) --- 29.1.2026
+6. Add api document: http://localhost:5000/api-docs/
 
 ### Todo List
 
@@ -44,16 +45,15 @@ Backend: JS, express, RESTful API
 
    `$env:NODE_ENV="development" npx sequelize-cli db:seed:all` 
 
-   > [!NOTE]
-   >
-   > **username**: admin	**password**: admin	**email**: admin@gmail.com
-   >
-   > **username**: root	    **password**: root	    **email**: root@gmail.com
-
+   ```
+   username: admin	password: admin	email: admin@gmail.com
+   username: root	password: root	email: root@gmail.com
+   ```
+   
    Activate 
-
+   
    `npm run dev`
-
+   
 3. **Frontend**
 
    `cd frontend`
