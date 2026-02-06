@@ -1,7 +1,8 @@
 import axios from 'axios';
-
+require('dotenv').config();
+const url = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
 const api = axios.create({
-    baseURL: 'http://localhost:5000/api',
+    baseURL: url,
     timeout: 5000,
     withCredentials: true,
     headers: {
