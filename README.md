@@ -2,6 +2,8 @@
 
 Since this project was solely intended for full-stack learning purposes, I did not incorporate project management features such as issues, issue boards, and milestones during development.
 
+### Preview
+
 ### Completed function
 
 1. Basic operation for notes (e.g. create, delete, update)
