@@ -30,6 +30,15 @@ app.use(cors({
 })); 
 
 app.use((req, res, next) => {
+  res.setHeader('X-Frame-Options', 'DENY');
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('X-XSS-Protection', '1; mode=block');
+  res.setHeader('Content-Security-Policy', "default-src 'self' https://www.clicklhere.online localhost; script-src 'self' https://www.clicklhere.online localhost; style-src 'self' https://www.clicklhere.online localhost 'unsafe-inline'");
+  res.setHeader('Access-Control-Allow-Credentials', 'true');
+  next();
+});
+
+app.use((req, res, next) => {
   if (process.env.Request == 1) {console.log(`【Global request log】${req.method} ${req.url} - body:`, req.body);}
   next();
 });
