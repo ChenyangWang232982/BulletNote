@@ -89,7 +89,7 @@ login = async (req, res) => {
             httpOnly: true,
             maxAge: JWT_EXPIRES_IN * 1000,
             secure: process.env.NODE_ENV === 'production',
-            sameSite: 'strict',
+            sameSite: 'none',
             path: '/'
         }
     );
