@@ -23,7 +23,7 @@ app.use(cookieParser());
 
 // middlewear
 app.use(cors({
-  origin: true,
+  origin: ['https://www.clicklhere.online', 'localhost'],
   credentials: true, //Allowed to cross origin with cookie
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   allowedHeaders: ['Content-Type', 'X-Skip-Alert']
