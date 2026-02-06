@@ -89,7 +89,7 @@ login = async (req, res) => {
             httpOnly: true,
             maxAge: JWT_EXPIRES_IN * 1000,
             secure: isProd,
-            sameSite: isProd ? 'none' : 'lax',
+            sameSite: 'none',
             path: '/'
         }
     );
@@ -117,7 +117,7 @@ getUserInfo = async (req, res) => {
 logout = async (req,res) => {
     res.clearCookie('note_token', {
         httpOnly: true,
-        sameSite: isProd ? 'none' : 'lax',
+        sameSite: 'none',
         secure: isProd,
         path: '/'
     })
