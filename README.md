@@ -4,7 +4,7 @@ Since this project was solely intended for full-stack learning purposes, I did n
 
 ### Website link
 
-<font color="blue">[BulletNote](https://clickthere.online)</font>
+<font color="blue">[BulletNote](https://clicklhere.online)</font>
 
 ### Completed function
 
