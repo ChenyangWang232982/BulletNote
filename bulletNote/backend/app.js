@@ -20,7 +20,7 @@ const PORT = process.env.PORT || 5000;
 app.use(express.json());                     
 app.use(express.urlencoded({ extended: true })); 
 app.use(cookieParser());
-const origin = process.env.NODE_ENV === 'production' ? 'https://bullet-note.vercel.app' : 'http://localhost:5173';
+const origin = process.env.NODE_ENV === 'production' ? 'https://bullet-note-nn6jiqh5f-chenyangwang232982s-projects.vercel.app' : 'http://localhost:5173';
 // middlewear
 app.use(cors({
   origin: origin,
