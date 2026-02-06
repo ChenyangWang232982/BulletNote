@@ -23,6 +23,7 @@ const sequelize = new Sequelize(
         dialectOptions: dbConfig.ssl ? {
             ssl: {
                 rejectUnauthorized: true,
+                ca: fs.readFileSync(path.resolve(__dirname, 'ca.pem'))
             }
     } : {}
     }
