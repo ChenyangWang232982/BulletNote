@@ -6,6 +6,7 @@ Since this project was solely intended for full-stack learning purposes, I did n
 
 <font color="blue">[BulletNote](https://clicklhere.online)</font>
 
+`Account: admin   Password: admin`
 > [!IMPORTANT]
 >
 > Due to technical and time constraints, this webpage is temporarily unable to function properly on mobile devices.
