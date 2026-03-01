@@ -26,11 +26,10 @@ Since this project was solely intended for full-stack learning purposes, I did n
 ### Todo List
 
 1. **To ensure that web pages function correctly on mobile web devices** (related to bug 1, todo item 2)
-2. Convert cookie authentication to token (store in localStorage) authentication
-3. Dashboard
-4. File upload & export
-5. time setting/Deadline
-6. ...
+2. Dashboard
+3. File upload & export
+4. time setting/Deadline
+5. ...
 
 ### Bug
 
